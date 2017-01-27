@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CBG - Snake</title>
+</head>
+<body>
+<h1>CBG - Snake</h1>
+<canvas id="d" width="600" height="600"></canvas>
+
+
+<script>
+    var appleX, appleY, snake;
+    var bs = 20;
+    var xSpeed, ySpeed;
+
+    window.onload = function() {
+        c = document.getElementById('d');
+        cc = c.getContext('2d');
+        reset();
+        setInterval(update,300);
+        window.addEventListener('keydown', function (event) {
+            switch (event.keyCode) {
+                case 37: if (xSpeed == 0) {xSpeed = -1; ySpeed = 0;} break;
+                case 38: if (ySpeed == 0) {xSpeed = 0; ySpeed = -1;} break;
+                case 39: if (xSpeed == 0) {xSpeed = 1; ySpeed = 0;} break;
+                case 40: if (ySpeed == 0) {xSpeed = 0; ySpeed = 1;} break;
+            }
+        });
+        var touchX, touchY = 0;
+
+        c.addEventListener('touchstart', function (event) {
+            event.preventDefault();
+            touchX = event.layerX;
+            touchY = event.layerY;
+        });
+        c.addEventListener('touchend', function (event) {
+            event.preventDefault();
+            var dx = event.layerX - touchX;
+            var dy = event.layerY - touchY;
+            if (Math.abs(dx) > Math.abs(dy) && xSpeed == 0) {
+                if (dx > 0) {xSpeed = 1; ySpeed = 0;}
+                else {xSpeed = -1; ySpeed = 0;}
+            } else if (Math.abs(dx) <= Math.abs(dy) && ySpeed == 0) {
+                if (dy > 0) {xSpeed = 0; ySpeed = 1;}
+                else {xSpeed = 0; ySpeed = -1;}
+            }
+
+        });
+        c.addEventListener('touchmove', function (event) {
+            event.preventDefault();
+        });
+    };
+
+    function inSnake(x, y) {
+        for (var i in snake) {
+            if (!snake.hasOwnProperty(i)) continue;
+            if (snake[i][0] == x && snake[i][1] == y) return true;
+        }
+        return false;
+    }
+
+    function genApple() {
+        do {
+            appleX = Math.floor(Math.random() * (c.width / bs));
+            appleY = Math.floor(Math.random() * (c.height / bs));
+        } while (inSnake(appleX, appleY));
+    }
+
+
+    function fillSquare(x, y) {
+        cc.fillRect(x * bs + 1, y * bs + 1, bs - 2, bs - 2);
+    }
+
+    function inWorld(x, y) {
+        return x >= 0 &&
+                y >= 0 &&
+            x < c.width/bs &&
+            y < c.height/bs
+    }
+
+    function update() {
+        cc.fillStyle = 'black';
+        cc.fillRect(0, 0, c.width, c.height);
+        cc.fillStyle = 'red';
+
+        var oldHead = snake[snake.length - 1];
+        var head = [];
+        head[0] = oldHead[0] + xSpeed;
+        head[1] = oldHead[1] + ySpeed;
+
+        if (!inWorld(head[0], head[1]) || inSnake(head[0], head[1])) {
+            reset();
+        } else {
+            snake.push(head);
+            if (head[0] == appleX && head[1] == appleY) {
+                genApple();
+            } else {
+                snake.shift();
+            }
+        }
+
+
+
+        fillSquare(appleX, appleY);
+
+        cc.fillStyle = 'white';
+
+        for (var i in snake) {
+            if (!snake.hasOwnProperty(i)) continue;
+            fillSquare(snake[i][0], snake[i][1]);
+        }
+
+
+    }
+
+    function reset() {
+        snake = [
+            [0, 0],
+            [1, 0]
+        ];
+        xSpeed = 1;
+        ySpeed = 0;
+        genApple();
+    }
+</script>
+
+</body>
+</html>
