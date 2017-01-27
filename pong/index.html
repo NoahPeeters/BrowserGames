@@ -30,7 +30,11 @@
             setInterval(update,1000/30);
             c.addEventListener('mousemove', function (event) {
                 p1y = event.layerY;
-            })
+            });
+            c.addEventListener('touchmove', function (event) {
+                p1y = event.layerY;
+                event.preventDefault();
+            });
         };
 
         function range(a, min, max) {
