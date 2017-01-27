@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CBG - Pong</title>
+</head>
+<body>
+    <h1>CBG - Pong</h1>
+    <canvas id="d" width="600" height="400"></canvas>
+
+
+    <script>
+        var c, cc;
+        var ph = 80;
+        var pw = 5;
+        var p1y = ph;
+        var p2y = ph;
+        var p1y_old, p2y_old;
+        var bx, by;
+        var vx = 3;
+        var vy = 3;
+        var bd = 5;
+        var score1 = 0;
+        var score2 = 0;
+
+        window.onload = function() {
+            c = document.getElementById('d');
+            cc = c.getContext('2d');
+            reset();
+            setInterval(update,1000/30);
+            c.addEventListener('mousemove', function (event) {
+                p1y = event.layerY;
+            })
+        };
+
+        function range(a, min, max) {
+            return Math.min(max, Math.max(min, a))
+        }
+
+        function update() {
+            cc.fillStyle = 'black';
+            cc.fillRect(0, 0, c.width, c.height);
+            cc.fillStyle = 'white';
+
+            bx += vx;
+            by += vy;
+
+            cc.fillRect(0, p1y - ph/2, pw, ph);
+            cc.fillRect(c.width-pw, p2y - ph/2, pw, ph);
+            cc.fillRect(bx - bd/2, by - bd/2, bd, bd);
+
+            cc.fillText(score1.toString(), 100, 100);
+            cc.fillText(score2.toString(), c.width-100, 100);
+
+            ai();
+
+            //collision detection
+            if ((vy < 0 && by <= 0) || (vy > 0 && by >= c.height)) {
+                vy *= -1;
+            }
+            if (vx < 0 && bx <= 0) {
+                vx *= -1;
+                if (Math.abs(by - p1y) > ph/2) {
+                    score2++;
+                    reset();
+                } else {
+                    vy += range(p1y - p1y_old, -2, 2);
+                }
+            } else if (vx > 0 && bx >= c.width) {
+                vx *= -1;
+                if (Math.abs(by - p2y) > ph/2) {
+                    score1++;
+                    reset();
+                } else {
+                    vy += range(p2y - p2y_old, -2, 2);
+                }
+            }
+
+            p1y_old = p1y;
+            p2y_old = p2y;
+        }
+
+        function ai() {
+            p2y+=(2*(p2y < by)-1)*2;
+
+        }
+
+        function reset() {
+            bx = c.width/2;
+            by = c.height/2;
+            vy = 0;
+        }
+    </script>
+
+</body>
+</html>
