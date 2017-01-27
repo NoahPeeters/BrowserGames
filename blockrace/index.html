@@ -26,6 +26,22 @@
                 else if (event.keyCode == 38 && py > -1) py -= 1;
             }
         });
+        var touchY = 0;
+
+        c.addEventListener('touchstart', function (event) {
+            event.preventDefault();
+            touchY = event.layerY;
+        });
+        c.addEventListener('touchend', function (event) {
+            event.preventDefault();
+            var dy = event.layerY - touchY;
+            if (dy < 0 && py > -1) py -= 1;
+            else if (dy > 0 && py < 1) py += 1;
+
+        });
+        c.addEventListener('touchmove', function (event) {
+            event.preventDefault();
+        });
     };
 
     function generate(x) {
