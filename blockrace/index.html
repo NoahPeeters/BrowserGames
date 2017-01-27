@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CBG - Blockrace</title>
+</head>
+<body>
+<h1>CBG - Blockrace</h1>
+<canvas id="d" width="800" height="300"></canvas>
+
+
+<script>
+    var c, cc, px, py, blocks, scrollPos, deadTime, speed;
+    var blockDim = 300;
+
+
+    window.onload = function() {
+        c = document.getElementById('d');
+        cc = c.getContext('2d');
+        blockDim = c.height / 3;
+        reset();
+        setInterval(update,1000/60);
+        window.addEventListener('keydown', function (event) {
+            if (deadTime < 0) {
+                if (event.keyCode == 40 && py < 1) py += 1;
+                else if (event.keyCode == 38 && py > -1) py -= 1;
+            }
+        });
+    };
+
+    function generate(x) {
+        var l = [false, false, false];
+        if (x < 10) return l;
+        if (x%2 == 0) return l;
+        l[Math.round(Math.random()*2)] = true;
+        if (x > 50) {l[Math.round(Math.random()*2)] = true;}
+        return l;
+    }
+
+    function getBlocks(x) {
+        if (x < 0) return [false, false, false];
+
+        while (x >= blocks.length) blocks.push(generate(x));
+        return blocks[x];
+    }
+
+    function update() {
+        cc.fillStyle = 'black';
+        cc.fillRect(0, 0, c.width, c.height);
+        cc.fillStyle = 'white';
+
+        speed *= 1.0005;
+        scrollPos += speed;
+        if (deadTime < 0) {
+            px += speed;
+        } else {
+            deadTime ++;
+            if (deadTime == 60) reset();
+        }
+
+
+
+        for (var x = scrollPos/blockDim - 2; x < (scrollPos + c.width)/blockDim - 1; x += +1) {
+            var xPos = Math.floor(x);
+            var data = getBlocks(xPos);
+            if (data[0]) cc.fillRect(c.width/3 - blockDim/2 + (xPos * blockDim - scrollPos), 0, blockDim, blockDim);
+            if (data[1]) cc.fillRect(c.width/3 - blockDim/2 + (xPos * blockDim - scrollPos), blockDim, blockDim, blockDim);
+            if (data[2]) cc.fillRect(c.width/3 - blockDim/2 + (xPos * blockDim - scrollPos), 2 * blockDim, blockDim, blockDim);
+        }
+
+        if (deadTime < 0 && getBlocks(Math.floor(px/blockDim + 2/3))[py + 1]) deadTime = 0;
+
+        var px1 = c.width/3 - blockDim/2 + blockDim/3 + (px - scrollPos);
+        var py1 = (py + 1) * blockDim + blockDim/3;
+
+        cc.fillStyle = 'red';
+        cc.fillRect(px1,py1 , blockDim/3, blockDim/3);
+
+        cc.fillText(Math.floor(px/blockDim).toString(), 20, 20);
+    }
+
+
+    function reset() {
+        py = 0;
+        px = 0;
+        blocks = [];
+        scrollPos = 0;
+        deadTime = -1;
+        speed = 2;
+    }
+</script>
+
+</body>
+</html>
